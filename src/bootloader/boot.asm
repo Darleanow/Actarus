@@ -1,9 +1,16 @@
 ORG 0 ; origin
 BITS 16 ; 16 bit architecture (for now)
 
-jmp 0x7c0:start
+_start: ; Bios Parameter Block specific
+    jmp short start
+    nop
+
+times 33 db 0 ; fill null to BPB (offset total is 33)
 
 start:
+    jmp 0x7c0:step2
+
+step2:
     cli ; clear interrupts
     mov ax, 0x7c0
     mov ds, ax
