@@ -1,7 +1,19 @@
-ORG 0x7c00 ; origin
+ORG 0 ; origin
 BITS 16 ; 16 bit architecture (for now)
 
+jmp 0x7c0:start
+
 start:
+    cli ; clear interrupts
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+
+    mov ax, 0x00 ; set stack 0
+    mov ss, ax
+    mov sp, 0x7c00 ; stack pointer
+    sti ; enable interrupts
+
     mov si, message
     call print
 
