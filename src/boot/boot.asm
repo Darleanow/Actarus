@@ -72,6 +72,11 @@ load32:
     mov ebp, 0x00200000
     mov esp, ebp
 
+    ; fast enable a20
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
     jmp $
 
 times 510-($- $$) db 0 ; fill at least 510 bytes of data, pabbing rest to 0
