@@ -128,5 +128,5 @@ ata_lba_read:
     ; End of reading sectors into memory
     ret
 
-times 510-($- $$) db 0 ; fill at least 510 bytes of data, pabbing rest to 0
+times 510-($- $$) db 0 ; fill at least 510 bytes of data, padding rest to 0
 dw 0xAA55 ; signature
