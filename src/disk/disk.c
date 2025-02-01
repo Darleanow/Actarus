@@ -39,8 +39,10 @@ void disk_search_and_init()
 {
     // TODO(Darleanow): Implement real search for disk, right now we only use the first one
     memset(&disk, 0, sizeof(disk));
+
     disk.type = ACTARUS_DISK_TYPE_REAL;
     disk.sector_size = ACTARUS_SECTOR_SIZE;
+    disk.filesystem = fs_resolve(&disk);
 }
 
 // Same here, disk array todo
