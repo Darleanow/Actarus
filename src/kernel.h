@@ -6,8 +6,8 @@
 
 #define ACTARUS_MAX_PATH 108
 
-void print(const char* string);
 void kernel_main();
+void print(const char* string);
 
 #define ERROR(value) (void*)(value)
 #define ERROR_I(value) (int)(value)

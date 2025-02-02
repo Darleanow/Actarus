@@ -4,9 +4,9 @@
 #include "memory/heap/kheap.h"
 #include "string/string.h"
 #include "disk/disk.h"
-#include "kernel.h"
-#include "status.h"
 #include "fat/fat16.h"
+#include "status.h"
+#include "kernel.h"
 
 struct filesystem *filesystems[ACTARUS_MAX_FILESYSTEMS];
 struct file_descriptor *file_descriptors[ACTARUS_MAX_FILE_DESCRIPTORS];
@@ -28,15 +28,10 @@ static struct filesystem **fs_get_free_filesystem()
 void fs_insert_filesystem(struct filesystem *filesystem)
 {
     struct filesystem **fs;
-
-    // todo(Darleanow): Panic on null fs
-
     fs = fs_get_free_filesystem();
-
-    // todo(Darleanow): Panic on null fs
     if (!fs)
     {
-        print("Problem inserting FS");
+        print("Problem inserting filesystem");
         while (1)
         {
         }
@@ -70,10 +65,8 @@ static int file_new_descriptor(struct file_descriptor **desc_out)
         if (file_descriptors[i] == 0)
         {
             struct file_descriptor *desc = kzalloc(sizeof(struct file_descriptor));
-
-            // Desc start at 1
+            // Descriptors start at 1
             desc->index = i + 1;
-
             file_descriptors[i] = desc;
             *desc_out = desc;
             res = 0;
@@ -91,7 +84,7 @@ static struct file_descriptor *file_get_descriptor(int fd)
         return 0;
     }
 
-    // Desc start at 1
+    // Descriptors start at 1
     int index = fd - 1;
     return file_descriptors[index];
 }
@@ -136,21 +129,20 @@ int fopen(const char *filename, const char *mode_str)
 {
     int res = 0;
     struct path_root *root_path = pathparser_parse(filename, NULL);
-
     if (!root_path)
     {
         res = -EINVARG;
         goto out;
     }
 
-    // ROOT PATH INSTEAD OF FILE (0:/) instead of (0:/test.txt)
+    // We cannot have just a root path 0:/ 0:/test.txt
     if (!root_path->first)
     {
         res = -EINVARG;
         goto out;
     }
 
-    // Checks for valid disk
+    // Ensure the disk we are reading from exists
     struct disk *disk = disk_get(root_path->drive_number);
     if (!disk)
     {
@@ -180,7 +172,6 @@ int fopen(const char *filename, const char *mode_str)
 
     struct file_descriptor *desc = 0;
     res = file_new_descriptor(&desc);
-
     if (res < 0)
     {
         goto out;
@@ -189,11 +180,10 @@ int fopen(const char *filename, const char *mode_str)
     desc->filesystem = disk->filesystem;
     desc->private = descriptor_private_data;
     desc->disk = disk;
-
     res = desc->index;
 
 out:
-    // fopen never returns neg values
+    // fopen shouldnt return negative values
     if (res < 0)
     {
         res = 0;
