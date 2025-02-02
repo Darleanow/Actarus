@@ -192,11 +192,27 @@ out:
     return res;
 }
 
+int fstat(int fd, struct file_stat *stat)
+{
+    int res = 0;
+
+    struct file_descriptor *desc = file_get_descriptor(fd);
+    if (!desc)
+    {
+        res = -EIO;
+        goto out;
+    }
+    res = desc->filesystem->stat(desc->disk, desc->private, stat);
+
+out:
+    return res;
+}
+
 int fseek(int fd, int offset, FILE_SEEK_MODE whence)
 {
     int res = 0;
 
-    struct file_descriptor* desc = file_get_descriptor(fd);
+    struct file_descriptor *desc = file_get_descriptor(fd);
     if (!desc)
     {
         res = -EIO;
@@ -209,7 +225,7 @@ out:
     return res;
 }
 
-int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
+int fread(void *ptr, uint32_t size, uint32_t nmemb, int fd)
 {
     int res = 0;
     if (size == 0 || nmemb == 0 || fd < 1)
@@ -218,7 +234,7 @@ int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
         goto out;
     }
 
-    struct file_descriptor * descriptor = file_get_descriptor(fd);
+    struct file_descriptor *descriptor = file_get_descriptor(fd);
 
     if (!descriptor)
     {
@@ -226,7 +242,7 @@ int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
         goto out;
     }
 
-    res = descriptor->filesystem->read(descriptor->disk, descriptor->private, size, nmemb, (char*) ptr);
+    res = descriptor->filesystem->read(descriptor->disk, descriptor->private, size, nmemb, (char *)ptr);
 
 out:
     return res;
