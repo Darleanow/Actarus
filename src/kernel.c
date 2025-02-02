@@ -100,11 +100,15 @@ void kernel_main()
     // Enable sys interrupts
     enable_interrupts();
 
-    int fd = fopen("0:/hello2.txt", "r");
+    int fd = fopen("0:/hello.txt", "r");
 
     if (fd)
     {
-        print("We opened hello.txt \n");
+        print("\nWe opened hello.txt \n");
+        char buf[16];
+        fread(buf, 15, 1, fd);
+        buf[15] = 0x00;
+        print(buf);
     }
 
     while (1)
