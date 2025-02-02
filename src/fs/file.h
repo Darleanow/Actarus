@@ -38,7 +38,7 @@ struct file_descriptor
     // Descriptor index
     int index;
     struct filesystem* filesystem;
-    
+
     // private data for internal file descriptor
     void* private;
 
