@@ -208,6 +208,20 @@ out:
     return res;
 }
 
+int fclose(int fd)
+{
+    int res = 0;
+    struct file_descriptor *descriptor = file_get_descriptor(fd);
+    if (!descriptor)
+    {
+        res = -EIO;
+        goto out;
+    }
+    res = descriptor->filesystem->close(descriptor->private);
+out:
+    return res;
+}
+
 int fseek(int fd, int offset, FILE_SEEK_MODE whence)
 {
     int res = 0;
