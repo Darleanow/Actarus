@@ -13,6 +13,7 @@
 #include "disk/streamer.h"
 #include "gdt/gdt.h"
 #include "config.h"
+#include "task/tss.h"
 
 uint16_t *video_mem = 0;
 uint16_t terminal_row = 0;
@@ -82,11 +83,15 @@ void panic(const char *message)
     }
 }
 
+struct tss tss;
 struct gdt gdt_real[ACTARUS_TOTAL_GDT_SEGMENTS];
 struct gdt_structured gdt_structured[ACTARUS_TOTAL_GDT_SEGMENTS] = {
-    {.base = 0x00, .limit = 0x00, .type = 0x00},       // NULL Segment
-    {.base = 0x00, .limit = 0xffffffff, .type = 0x9a}, // Kernel code segment
-    {.base = 0x00, .limit = 0xffffffff, .type = 0x92}, // Kernel Data segment
+    {.base = 0x00, .limit = 0x00, .type = 0x00},                 // NULL Segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x9a},           // Kernel code segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x92},           // Kernel Data segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0xf8},           // User code segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0xf2},           // User data segment
+    {.base = (uint32_t)&tss, .limit = sizeof(tss), .type = 0xE9} // TSS Segment
 };
 
 void kernel_main()
@@ -111,6 +116,14 @@ void kernel_main()
 
     // Init Interrupt descriptor table
     idt_init();
+
+    // Setup tss
+    memset(&tss, 0x00, sizeof(tss));
+    tss.esp0 = 0x600000; // Kernels stack
+    tss.ss0 = KERNEL_DATA_SELECTOR;
+
+    // Load tss
+    tss_load(0x28);
 
     // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
