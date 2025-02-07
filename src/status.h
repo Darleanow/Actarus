@@ -9,4 +9,5 @@
 #define EFSNOTUS                5 // Error not us (responsibility)
 #define ERDONLY                 6 // Error read only
 #define EUNIMP                  7 // Error not implemented
+#define EISTKN                  8 // Error is taken
 #endif

@@ -21,6 +21,8 @@ struct registers
     uint32_t ss;
 };
 
+struct process;
+
 struct task
 {
     // Page directory of the task
@@ -29,6 +31,9 @@ struct task
     // Registers of the task when task not running
     struct registers registers;
 
+    // Task process
+    struct process *process;
+
     // Next task in ll
     struct task *next;
 
@@ -36,9 +41,9 @@ struct task
     struct task *prev;
 };
 
-struct task* task_new();
+struct task* task_new(struct process* process);
 struct task *task_current();
-struct task* task_get_next();
-int task_free(struct task* task);
+struct task *task_get_next();
+int task_free(struct task *task);
 
 #endif
