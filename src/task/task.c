@@ -12,18 +12,18 @@ struct task *current_task = 0;
 struct task *task_tail = 0;
 struct task *task_head = 0;
 
-int task_init(struct task *task, struct process* process);
+int task_init(struct task *task, struct process *process);
 
 struct task *task_current()
 {
     return current_task;
 }
 
-struct task* task_new(struct process* process)
+struct task *task_new(struct process *process)
 {
     int res = 0;
 
-    struct task* task = kzalloc(sizeof(struct task));
+    struct task *task = kzalloc(sizeof(struct task));
     if (!task)
     {
         res = -ENOMEM;
@@ -57,7 +57,7 @@ out:
     return task;
 }
 
-struct task* task_get_next()
+struct task *task_get_next()
 {
     if (!current_task->next)
     {
@@ -67,7 +67,7 @@ struct task* task_get_next()
     return current_task->next;
 }
 
-static void task_list_remove(struct task* task)
+static void task_list_remove(struct task *task)
 {
     if (task->prev)
     {
@@ -90,7 +90,7 @@ static void task_list_remove(struct task* task)
     }
 }
 
-int task_free(struct task* task)
+int task_free(struct task *task)
 {
     paging_free_4gb(task->page_directory);
     task_list_remove(task);
@@ -101,7 +101,32 @@ int task_free(struct task* task)
     return 0;
 }
 
-int task_init(struct task *task, struct process* process)
+int task_switch(struct task *task)
+{
+    current_task = task;
+    paging_switch(task->page_directory->directory_entry);
+    return 0;
+}
+
+int task_page()
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
+void task_run_first_ever_task()
+{
+    if (!current_task)
+    {
+        panic("task_run_first_ever_task(): No current task exists!\n");
+    }
+
+    task_switch(task_head);
+    task_return(&task_head->registers);
+}
+
+int task_init(struct task *task, struct process *process)
 {
     memset(task, 0, sizeof(struct task));
 
@@ -117,6 +142,6 @@ int task_init(struct task *task, struct process* process)
     task->registers.esp = ACTARUS_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
 
     task->process = process;
-    
+
     return 0;
 }
