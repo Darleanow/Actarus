@@ -11,6 +11,7 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 
 	# Copy a file over
 	sudo cp ./hello.txt /mnt/d
+	sudo cp ./programs/blank/blank.bin /mnt/d
 	sudo umount /mnt/d
 
 ./bin/kernel.bin: $(FILES)
