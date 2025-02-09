@@ -76,7 +76,7 @@ void print(const char *string)
     }
 }
 
-static struct paging_4gb_chunk *kernel_chunk;
+static struct paging_4gb_chunk *kernel_chunk = 0;
 
 void panic(const char *message)
 {
@@ -84,6 +84,12 @@ void panic(const char *message)
     while (1)
     {
     }
+}
+
+void kernel_page()
+{
+    kernel_registers();
+    paging_switch(kernel_chunk);
 }
 
 struct tss tss;
@@ -137,7 +143,7 @@ void kernel_main()
     // Enable paging
     enable_paging();
 
-    struct process* process = 0;
+    struct process *process = 0;
     int res = process_load("0:/blank.bin", &process);
     if (res != ACTARUS_ALL_OK)
     {
